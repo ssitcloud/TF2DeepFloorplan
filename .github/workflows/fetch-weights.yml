@@ -1,0 +1,23 @@
+name: fetch-weights
+on:
+  push:
+    branches: [weights-relay]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download weights from Google Drive
+        run: |
+          pip install gdown
+          gdown 1tuqUPbiZnuubPFHMQqCo1_kFNKq4hU8i -O model.zip
+          gdown 1B-Fw-zgufEqiLm00ec2WCMUo5E6RY2eO -O tflite.zip
+          ls -lh *.zip
+      - name: Create release with assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ssitcloud/TF2DeepFloorplan
+        run: |
+          gh release create weights-v1 model.zip tflite.zip --target weights-relay --title "Pretrained weights relay" --notes "Relay of upstream Google Drive weights (see upstream README) for network-restricted development. Upstream code GPL-3.0."
